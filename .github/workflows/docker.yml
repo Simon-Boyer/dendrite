@@ -49,20 +49,35 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build main polylith image
+      # - name: Build main polylith image
+      #   if: github.ref_name == 'main'
+      #   id: docker_build_polylith
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
+      #     context: .
+      #     build-args: FLAGS=-X github.com/matrix-org/dendrite/internal.branch=${{ env.BRANCH }} -X github.com/matrix-org/dendrite/internal.build=${{ env.BUILD }}
+      #     target: polylith
+      #     platforms: ${{ env.PLATFORMS }}
+      #     push: true
+      #     tags: |
+      #       ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}
+
+      - name: Build main monolith image
         if: github.ref_name == 'main'
-        id: docker_build_polylith
+        id: docker_build_monolith
         uses: docker/build-push-action@v3
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
           build-args: FLAGS=-X github.com/matrix-org/dendrite/internal.branch=${{ env.BRANCH }} -X github.com/matrix-org/dendrite/internal.build=${{ env.BUILD }}
-          target: polylith
+          target: monolith
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: |
-            ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}
+            ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

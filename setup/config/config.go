@@ -268,13 +268,14 @@ func loadConfig(
 	}
 
 	if os.Getenv("CONNECTION_STRING") != "" {
-		c.FederationAPI.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
-		c.KeyServer.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
-		c.MediaAPI.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
-		c.RoomServer.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
-		c.SyncAPI.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
-		c.UserAPI.AccountDatabase.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
-		c.MSCs.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+		// c.FederationAPI.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+		// c.KeyServer.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+		// c.MediaAPI.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+		// c.RoomServer.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+		// c.SyncAPI.Database.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+		// c.UserAPI.AccountDatabase.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+		// c.MSCs.D
+		c.Global.DatabaseOptions.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
 	}
 
 	c.MediaAPI.AbsBasePath = Path(absPath(basePath, c.MediaAPI.BasePath))
