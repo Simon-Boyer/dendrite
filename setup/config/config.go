@@ -267,6 +267,10 @@ func loadConfig(
 		}
 	}
 
+	if os.Getenv("CONNECTION_STRING") != "" {
+		c.Global.DatabaseOptions.ConnectionString = DataSource(os.Getenv("CONNECTION_STRING"))
+	}
+
 	c.MediaAPI.AbsBasePath = Path(absPath(basePath, c.MediaAPI.BasePath))
 
 	// Generate data from config options
