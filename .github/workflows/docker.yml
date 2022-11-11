@@ -77,7 +77,7 @@ jobs:
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: |
-            ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}}
+            ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
