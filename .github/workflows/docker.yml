@@ -51,36 +51,37 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Build main polylith image
-      #   if: github.ref_name == 'main'
-      #   id: docker_build_polylith
-      #   uses: docker/build-push-action@v3
-      #   with:
-      #     cache-from: type=gha
-      #     cache-to: type=gha,mode=max
-      #     context: .
-      #     build-args: FLAGS=-X github.com/matrix-org/dendrite/internal.branch=${{ env.BRANCH }} -X github.com/matrix-org/dendrite/internal.build=${{ env.BUILD }}
-      #     target: polylith
-      #     platforms: ${{ env.PLATFORMS }}
-      #     push: true
-      #     tags: |
-      #       ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}
-
-      - name: Build main monolith image
+      - name: Build main polylith image
         if: github.ref_name == 'main'
-        id: docker_build_monolith
+        id: docker_build_polylith
         uses: docker/build-push-action@v3
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
           build-args: FLAGS=-X github.com/matrix-org/dendrite/internal.branch=${{ env.BRANCH }} -X github.com/matrix-org/dendrite/internal.build=${{ env.BUILD }}
-          target: monolith
+          target: polylith
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: |
             ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}
             ghcr.io/simon-boyer/dendrite:${{ github.sha }}
+
+      # - name: Build main monolith image
+      #   if: github.ref_name == 'main'
+      #   id: docker_build_monolith
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
+      #     context: .
+      #     build-args: FLAGS=-X github.com/matrix-org/dendrite/internal.branch=${{ env.BRANCH }} -X github.com/matrix-org/dendrite/internal.build=${{ env.BUILD }}
+      #     target: monolith
+      #     platforms: ${{ env.PLATFORMS }}
+      #     push: true
+      #     tags: |
+      #       ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}
+      #       ghcr.io/simon-boyer/dendrite:${{ github.sha }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -112,7 +113,7 @@ jobs:
     env:
       API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
     steps:
-      - run: "echo DIGEST: ${{ needs.build-and-publish-image.outputs.digest }}"
+      - run: "echo DIGEST: ${{ needs.build-and-publish-image.outputs.newimage }}"
       - name: Run kustomize to update images and push result to another repository
         # You may pin to the exact commit or the version.
         # uses: rusowyler/github-action-kustomize-and-push@300d4106cdcacb043e7f04695636ef6d191da012
