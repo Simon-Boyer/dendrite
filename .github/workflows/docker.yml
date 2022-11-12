@@ -20,13 +20,15 @@ env:
   PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
 
 jobs:
-  polylith:
+  build-and-publish-image:
     name: Polylith image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       security-events: write # To upload Trivy sarif files
+    outputs:
+      newimage: ${{ steps.img.outputs.newimage }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -78,6 +80,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/simon-boyer/dendrite:${{ github.ref_name }}
+            ghcr.io/simon-boyer/dendrite:${{ github.sha }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -90,3 +93,38 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: "trivy-results.sarif"
+
+      - name: get image digest
+        id: img
+        run: |
+          export IMG_OUTPUT=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/simon-boyer/dendrite:${{github.sha}})
+          echo "newimage=$IMG_OUTPUT" >> $GITHUB_OUTPUT
+
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs: build-and-publish-image
+    environment:
+      name: deploy
+      url: https://matrix.arctiq.codegameeat.com
+    env:
+      API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+    steps:
+      - run: "echo DIGEST: ${{ needs.build-and-publish-image.outputs.digest }}"
+      - name: Run kustomize to update images and push result to another repository
+        # You may pin to the exact commit or the version.
+        # uses: rusowyler/github-action-kustomize-and-push@300d4106cdcacb043e7f04695636ef6d191da012
+        uses: rusowyler/github-action-kustomize-and-push@v1.1.0
+        with:
+          # The images (space separated) to edit using kustomize, for example: node:8.15.0 mysql=mariadb For more information run: kustomize edit set image -h
+          kustomize-edit-images: "dendrite=${{ needs.build-and-publish-image.outputs.newimage }}"
+          # Email for the git commit
+          user-email: simon.boyer.1@ens.etsmtl.ca
+          # [Optional] Name for the git commit. Defaults to the destination username/organization name
+          repository-username: Simon-Boyer
+          # Destination repository In https://github.com/kubernetes-sigs/kustomize is: kustomize
+          repository-name: arctiq-mission-infra
+          # [Optional] set target branch name for the destination repository. Defaults to "main"
+          directory: apps/dendrite/base
