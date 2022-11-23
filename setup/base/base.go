@@ -211,10 +211,7 @@ func NewBaseDendrite(cfg *config.Dendrite, componentName string, options ...Base
 	// have a separate database config of their own.
 	var db *sql.DB
 	var writer sqlutil.Writer
-	if cfg.Global.DatabaseOptions.ConnectionString != "" {
-		if !isMonolith {
-			logrus.Panic("Using a global database connection pool is not supported in polylith deployments")
-		}
+	if cfg.Global.DatabaseOptions.ConnectionString != "" && !isMonolith {
 		if cfg.Global.DatabaseOptions.ConnectionString.IsSQLite() {
 			logrus.Panic("Using a global database connection pool is not supported with SQLite databases")
 		}
